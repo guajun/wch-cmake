@@ -3,14 +3,12 @@ set -eu
 
 version=latest
 project=
-mrs_root=${MRS2_ROOT:-}
 install_directory=${XDG_DATA_HOME:-"$HOME/.local/share"}/wch-cmake
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --version) version=$2; shift 2 ;;
         --project) project=$2; shift 2 ;;
-        --mrs-root) mrs_root=$2; shift 2 ;;
         --install-directory) install_directory=$2; shift 2 ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
     esac
@@ -35,5 +33,5 @@ chmod +x "$install_directory/wch-cmake.sh"
 echo "Installed wch-cmake scripts at $install_directory"
 
 if [ -n "$project" ]; then
-    MRS2_ROOT="$mrs_root" "$install_directory/wch-cmake.sh" import --project "$project"
+    "$install_directory/wch-cmake.sh" import --project "$project"
 fi

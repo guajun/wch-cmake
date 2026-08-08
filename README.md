@@ -18,18 +18,19 @@ for discovery, flash, GDB Server, and breakpoint checks.
 Build the new project once in MRS2, then run the repository script:
 
 ```powershell
-& F:\wch\wch-cmake\wch-cmake.ps1 import -Project F:\wch\blink\CH32X035F8U -MrsRoot C:\MounRiver\MounRiver_Studio2
+& F:\wch\wch-cmake\wch-cmake.ps1 import -Project F:\wch\blink\CH32X035F8U
 ```
 
 The POSIX entry point calls the same `cmake -P` implementation:
 
 ```sh
-MRS2_ROOT=/opt/mounriver sh /opt/wch-cmake/wch-cmake.sh import --project ./firmware
+sh /opt/wch-cmake/wch-cmake.sh import --project ./firmware
 ```
 
 The importer installs `CMakeLists.txt`, presets, the toolchain modules,
-`cmake/wch-project.cmake`, VS Code tasks, and shell activation scripts. Local
-MRS2 paths are kept in ignored `CMakeUserPresets.json`.
+`cmake/wch-project.cmake`, VS Code tasks, and shell activation scripts. Import
+only reads the MRS2-generated project metadata, so it does not need a toolchain
+path.
 
 The first supported layouts are WCH RISC-V GCC8, GCC12, and GCC15. Chip-specific
 flags, linker script, source order, libraries, device name, OpenOCD config, and
@@ -38,15 +39,30 @@ GDB port come from the MRS2 project rather than from a duplicated chip table.
 ## Build
 
 ```powershell
-cmake --preset local-release
-cmake --build --preset local-release --parallel
+.\scripts\activate.ps1
+cmake --preset release
+cmake --build --preset release --parallel
 ```
 
-`release` and `debug` live in the tracked `CMakePresets.json`. The importer
-creates an ignored `CMakeUserPresets.json` with `local-release` and
-`local-debug`; those presets inherit their tracked counterparts and only add
-the current machine's `MRS2_ROOT`. The `local` prefix therefore means
-machine-local configuration, not a different build type or artifact scope.
+On POSIX systems, export the installation path before sourcing the activation
+script:
+
+```sh
+export MRS2_ROOT=/opt/mounriver
+. ./scripts/activate.sh
+cmake --preset release
+cmake --build --preset release --parallel
+```
+
+`release` and `debug` are the only public presets, and both live in the tracked
+`CMakePresets.json`. The activation script exports `MRS2_ROOT` into the current
+shell. CMake reads that environment variable directly and stops at configure
+time when it is absent; no `CMakeUserPresets.json` or machine-local preset is
+generated.
+
+The generated VS Code tasks use the same two presets. Start VS Code from an
+environment where `MRS2_ROOT` is already set so its tasks inherit the toolchain
+location.
 
 Add new application sources directly to `WCH_SOURCES` in
 `cmake/wch-project.cmake`, or use normal `target_sources` and subdirectory
@@ -85,7 +101,7 @@ mutable project logic.
 - Before import, MRS2 `.template/.launch` and generated makefiles are bootstrap
   inputs.
 - After import, `CMakeLists.txt` and `cmake/wch-project.cmake` own the build.
-- `CMakeUserPresets.json` owns machine-local paths and is ignored by Git.
+- The current process environment owns the machine-local `MRS2_ROOT` path.
 - `.project/.cproject/.wvproj` are not consumed during normal CMake builds.
 - `wchlink-cli` owns physical probe sessions and has no build-generation code.
 

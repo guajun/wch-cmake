@@ -3,15 +3,14 @@ include_guard(GLOBAL)
 
 include("${CMAKE_CURRENT_LIST_DIR}/wch-project.cmake")
 
-set(MRS2_ROOT "$ENV{MRS2_ROOT}" CACHE PATH "MounRiver Studio 2 installation root")
-if(NOT MRS2_ROOT)
-    if(WIN32)
-        set(MRS2_ROOT "C:/MounRiver/MounRiver_Studio2" CACHE PATH
-            "MounRiver Studio 2 installation root" FORCE)
-    else()
-        message(FATAL_ERROR "Set MRS2_ROOT to a compatible native WCH tool installation")
-    endif()
+if(NOT DEFINED ENV{MRS2_ROOT} OR "$ENV{MRS2_ROOT}" STREQUAL "")
+    message(FATAL_ERROR
+        "MRS2_ROOT is not set. Run the generated activation script or export "
+        "MRS2_ROOT before configuring this project.")
 endif()
+file(TO_CMAKE_PATH "$ENV{MRS2_ROOT}" _wch_mrs2_root)
+set(MRS2_ROOT "${_wch_mrs2_root}" CACHE PATH
+    "MounRiver Studio 2 installation root" FORCE)
 
 set(_wch_component_root
     "${MRS2_ROOT}/resources/app/resources/win32/components/WCH")

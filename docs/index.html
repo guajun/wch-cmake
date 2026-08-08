@@ -257,16 +257,6 @@
       font-weight: 700;
     }
 
-    .local {
-      display: inline-block;
-      padding: 1px 7px;
-      border-radius: 4px;
-      background: var(--green-soft);
-      color: var(--green);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
     .note {
       margin-top: 22px;
       padding: 16px 18px;
@@ -381,8 +371,9 @@
           <span>PowerShell</span>
           <span>CH32X035F8U</span>
         </div>
-        <pre><span class="prompt">PS&gt;</span> cmake --preset local-release
-<span class="prompt">PS&gt;</span> cmake --build --preset local-release --parallel
+        <pre><span class="prompt">PS&gt;</span> .\scripts\activate.ps1
+<span class="prompt">PS&gt;</span> cmake --preset release
+<span class="prompt">PS&gt;</span> cmake --build --preset release --parallel
 
 [24/24] Linking C executable CH32X035F8U.elf
    text    data     bss     dec     hex
@@ -422,53 +413,41 @@
     </section>
 
     <section id="presets">
-      <h2>Why the local prefix exists</h2>
+      <h2>Two presets, one environment</h2>
       <p class="section-copy">
-        Shared presets are committed. Machine paths are not. The generated,
-        ignored <code>CMakeUserPresets.json</code> adds the <code>local-*</code>
-        presets and injects only the current machine's <code>MRS2_ROOT</code>.
+        <code>release</code> and <code>debug</code> are committed and portable.
+        The activation script exports the machine-local <code>MRS2_ROOT</code>
+        into the current shell, and CMake reads it directly.
       </p>
 
       <table class="preset-table">
         <thead>
           <tr>
             <th>Preset</th>
-            <th>Defined in</th>
-            <th>Role</th>
-            <th>Git</th>
+            <th>Build type</th>
+            <th>Toolchain path</th>
+            <th>Definition</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><code>release</code></td>
-            <td><code>CMakePresets.json</code></td>
-            <td>Portable Release configuration</td>
-            <td>Tracked</td>
+            <td>Release</td>
+            <td>Current shell's <code>MRS2_ROOT</code></td>
+            <td>Tracked in <code>CMakePresets.json</code></td>
           </tr>
           <tr>
             <td><code>debug</code></td>
-            <td><code>CMakePresets.json</code></td>
-            <td>Portable Debug configuration</td>
-            <td>Tracked</td>
-          </tr>
-          <tr>
-            <td><code>local-release</code></td>
-            <td><code>CMakeUserPresets.json</code></td>
-            <td>Inherits <code>release</code> and supplies local MRS2 path</td>
-            <td><span class="local">Ignored</span></td>
-          </tr>
-          <tr>
-            <td><code>local-debug</code></td>
-            <td><code>CMakeUserPresets.json</code></td>
-            <td>Inherits <code>debug</code> and supplies local MRS2 path</td>
-            <td><span class="local">Ignored</span></td>
+            <td>Debug</td>
+            <td>Current shell's <code>MRS2_ROOT</code></td>
+            <td>Tracked in <code>CMakePresets.json</code></td>
           </tr>
         </tbody>
       </table>
 
       <div class="note">
-        <strong>local</strong> means machine-local configuration. It does not
-        mean a different optimization level or a local-only artifact.
+        If <code>MRS2_ROOT</code> is absent, configure stops immediately. The
+        toolchain has no hidden default path and no user preset fallback.
       </div>
     </section>
 

@@ -1,7 +1,6 @@
 param(
     [string]$Version = "latest",
     [string]$Project = "",
-    [string]$MrsRoot = $env:MRS2_ROOT,
     [string]$InstallDirectory = "$env:LOCALAPPDATA\wch-cmake"
 )
 
@@ -40,7 +39,7 @@ try {
     $entry = Join-Path $InstallDirectory "wch-cmake.ps1"
     Write-Host "Installed wch-cmake scripts at $InstallDirectory"
     if ($Project) {
-        & $entry import -Project $Project -MrsRoot $MrsRoot
+        & $entry import -Project $Project
     }
 } finally {
     Remove-Item -LiteralPath $temporary -Recurse -Force -ErrorAction SilentlyContinue

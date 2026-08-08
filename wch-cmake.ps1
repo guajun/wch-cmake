@@ -6,9 +6,8 @@ param(
 
     [string]$Project = ".",
     [string]$BuildDir = "obj",
-    [string]$MrsRoot = $env:MRS2_ROOT,
     [string]$MrsBuild = "obj",
-    [string]$CMakeBuild = "build/local-release",
+    [string]$CMakeBuild = "build/release",
     [switch]$Force
 )
 
@@ -19,8 +18,8 @@ if ($Command -eq "help") {
 wch-cmake generates a standalone CMake build from an MRS2-generated makefile.
 
 Usage:
-  .\wch-cmake.ps1 import -Project PATH [-BuildDir obj] [-MrsRoot PATH] [-Force]
-  .\wch-cmake.ps1 verify -Project PATH [-MrsBuild obj] [-CMakeBuild build/local-release]
+  .\wch-cmake.ps1 import -Project PATH [-BuildDir obj] [-Force]
+  .\wch-cmake.ps1 verify -Project PATH [-MrsBuild obj] [-CMakeBuild build/release]
 
 The command is a script. It does not install or execute a wch-cmake binary.
 "@ | Write-Output
@@ -28,11 +27,7 @@ The command is a script. It does not install or execute a wch-cmake binary.
 }
 
 $resolvedProject = (Resolve-Path -LiteralPath $Project).Path
-if (-not $MrsRoot) {
-    $MrsRoot = "C:\MounRiver\MounRiver_Studio2"
-}
-
-$cmakeArguments = @("-DWCH_PROJECT=$resolvedProject", "-DMRS2_ROOT=$MrsRoot")
+$cmakeArguments = @("-DWCH_PROJECT=$resolvedProject")
 switch ($Command) {
     "import" {
         $cmakeArguments += "-DWCH_BUILD_DIR=$BuildDir"

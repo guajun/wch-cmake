@@ -5,14 +5,14 @@
       "label": "WCH: configure release",
       "type": "process",
       "command": "cmake",
-      "args": ["--preset", "local-release"],
+      "args": ["--preset", "release"],
       "problemMatcher": []
     },
     {
       "label": "WCH: build release",
       "type": "process",
       "command": "cmake",
-      "args": ["--build", "--preset", "local-release", "--parallel"],
+      "args": ["--build", "--preset", "release", "--parallel"],
       "dependsOn": "WCH: configure release",
       "problemMatcher": ["$gcc"],
       "group": {
@@ -32,14 +32,14 @@
       "label": "WCH: configure debug",
       "type": "process",
       "command": "cmake",
-      "args": ["--preset", "local-debug"],
+      "args": ["--preset", "debug"],
       "problemMatcher": []
     },
     {
       "label": "WCH: build debug",
       "type": "process",
       "command": "cmake",
-      "args": ["--build", "--preset", "local-debug", "--parallel"],
+      "args": ["--build", "--preset", "debug", "--parallel"],
       "dependsOn": "WCH: configure debug",
       "problemMatcher": ["$gcc"]
     },
