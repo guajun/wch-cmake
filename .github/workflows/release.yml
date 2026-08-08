@@ -1,0 +1,34 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package scripts and templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/wch-cmake
+          cp README.md wch-cmake.ps1 wch-cmake.sh dist/wch-cmake/
+          cp -R scripts templates install dist/wch-cmake/
+          chmod +x dist/wch-cmake/wch-cmake.sh dist/wch-cmake/install/install.sh
+          (cd dist && zip -qr wch-cmake.zip wch-cmake)
+          (cd dist && sha256sum wch-cmake.zip > checksums.txt)
+          cp install/install.ps1 dist/install.ps1
+          cp install/install.sh dist/install.sh
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/wch-cmake.zip
+            dist/checksums.txt
+            dist/install.ps1
+            dist/install.sh

@@ -1,0 +1,55 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "WCH: configure release",
+      "type": "process",
+      "command": "cmake",
+      "args": ["--preset", "local-release"],
+      "problemMatcher": []
+    },
+    {
+      "label": "WCH: build release",
+      "type": "process",
+      "command": "cmake",
+      "args": ["--build", "--preset", "local-release", "--parallel"],
+      "dependsOn": "WCH: configure release",
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "WCH: flash",
+      "type": "process",
+      "command": "wchlink-cli",
+      "args": ["flash", "--project", "${workspaceFolder}", "--yes"],
+      "dependsOn": "WCH: build release",
+      "problemMatcher": []
+    },
+    {
+      "label": "WCH: configure debug",
+      "type": "process",
+      "command": "cmake",
+      "args": ["--preset", "local-debug"],
+      "problemMatcher": []
+    },
+    {
+      "label": "WCH: build debug",
+      "type": "process",
+      "command": "cmake",
+      "args": ["--build", "--preset", "local-debug", "--parallel"],
+      "dependsOn": "WCH: configure debug",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "WCH: breakpoint check",
+      "type": "process",
+      "command": "wchlink-cli",
+      "args": ["debug-check", "--project", "${workspaceFolder}", "--break", "main", "--yes"],
+      "dependsOn": "WCH: build debug",
+      "problemMatcher": []
+    }
+  ]
+}
