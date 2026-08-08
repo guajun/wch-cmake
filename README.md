@@ -1,5 +1,7 @@
 # wch-cmake
 
+Documentation: <https://guajun.github.io/wch-cmake/>
+
 `wch-cmake` is a repository of CMake templates and executable `.ps1/.sh`
 scripts. It is not a compiled program.
 
@@ -39,6 +41,12 @@ GDB port come from the MRS2 project rather than from a duplicated chip table.
 cmake --preset local-release
 cmake --build --preset local-release --parallel
 ```
+
+`release` and `debug` live in the tracked `CMakePresets.json`. The importer
+creates an ignored `CMakeUserPresets.json` with `local-release` and
+`local-debug`; those presets inherit their tracked counterparts and only add
+the current machine's `MRS2_ROOT`. The `local` prefix therefore means
+machine-local configuration, not a different build type or artifact scope.
 
 Add new application sources directly to `WCH_SOURCES` in
 `cmake/wch-project.cmake`, or use normal `target_sources` and subdirectory
