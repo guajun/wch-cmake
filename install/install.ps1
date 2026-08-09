@@ -36,11 +36,11 @@ try {
 
     Expand-Archive -LiteralPath $archive -DestinationPath $staging -Force
     $entry = Join-Path $staging "wch-cmake\wch-cmake.ps1"
-    $arguments = @("import", "-Project", $resolvedProject)
     if ($WithVSCode) {
-        $arguments += "-WithVSCode"
+        & $entry import -Project $resolvedProject -WithVSCode
+    } else {
+        & $entry import -Project $resolvedProject
     }
-    & $entry @arguments
     if ($LASTEXITCODE -ne 0) {
         throw "wch-cmake import failed with exit code $LASTEXITCODE"
     }

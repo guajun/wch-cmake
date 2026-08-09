@@ -97,7 +97,7 @@ A release contains scripts and templates, not an executable:
 The installer stages the release inside the selected project, verifies its
 SHA-256 checksum, imports the four project-local outputs, and removes the
 staging directory. It does not install a global `wch-cmake` command or leave
-files in the system temporary directory. Pin `-Version v0.1.1` in reproducible
+files in the system temporary directory. Pin `-Version v0.1.2` in reproducible
 setup. CMake configure never downloads mutable project logic.
 
 ## Sources Of Truth
