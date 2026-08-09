@@ -8,6 +8,7 @@ param(
     [string]$BuildDir = "obj",
     [string]$MrsBuild = "obj",
     [string]$CMakeBuild = "build/release",
+    [switch]$WithVSCode,
     [switch]$Force
 )
 
@@ -18,7 +19,7 @@ if ($Command -eq "help") {
 wch-cmake generates a standalone CMake build from an MRS2-generated makefile.
 
 Usage:
-  .\wch-cmake.ps1 import -Project PATH [-BuildDir obj] [-Force]
+  .\wch-cmake.ps1 import -Project PATH [-BuildDir obj] [-WithVSCode] [-Force]
   .\wch-cmake.ps1 verify -Project PATH [-MrsBuild obj] [-CMakeBuild build/release]
 
 The command is a script. It does not install or execute a wch-cmake binary.
@@ -31,6 +32,7 @@ $cmakeArguments = @("-DWCH_PROJECT=$resolvedProject")
 switch ($Command) {
     "import" {
         $cmakeArguments += "-DWCH_BUILD_DIR=$BuildDir"
+        $cmakeArguments += "-DWCH_WITH_VSCODE=$($WithVSCode.IsPresent)"
         $cmakeArguments += "-DWCH_FORCE=$($Force.IsPresent)"
         $cmakeArguments += @("-P", (Join-Path $PSScriptRoot "scripts\import.cmake"))
     }

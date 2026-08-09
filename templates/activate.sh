@@ -9,12 +9,28 @@ fi
 wch_component_root="$MRS2_ROOT/resources/app/resources/win32/components/WCH"
 wch_toolchain_bin="$wch_component_root/Toolchain/@TOOLCHAIN_NAME@/bin"
 wch_openocd_bin="$wch_component_root/OpenOCD/OpenOCD/bin"
+wch_compiler="$wch_toolchain_bin/@TOOL_PREFIX@gcc"
+wch_openocd="$wch_openocd_bin/openocd"
 
-if [ ! -d "$wch_toolchain_bin" ] || [ ! -d "$wch_openocd_bin" ]; then
-    echo "Compatible WCH tools were not found below MRS2_ROOT=$MRS2_ROOT" >&2
+if [ ! -x "$wch_compiler" ]; then
+    echo "WCH compiler not found: $wch_compiler" >&2
+    return 1 2>/dev/null || exit 1
+fi
+if [ ! -x "$wch_openocd" ]; then
+    echo "WCH OpenOCD not found: $wch_openocd" >&2
     return 1 2>/dev/null || exit 1
 fi
 
-PATH="$wch_toolchain_bin:$wch_openocd_bin:$PATH"
-export MRS2_ROOT PATH
-echo "Activated @TOOLCHAIN_NAME@ from $MRS2_ROOT"
+wch_selected_path="$wch_toolchain_bin:$wch_openocd_bin"
+case "$PATH" in
+    "$wch_selected_path"|"$wch_selected_path:"*) ;;
+    *) PATH="$wch_selected_path:$PATH" ;;
+esac
+
+WCH_TOOLCHAIN_BIN=$wch_toolchain_bin
+WCH_OPENOCD_BIN=$wch_openocd_bin
+export MRS2_ROOT WCH_TOOLCHAIN_BIN WCH_OPENOCD_BIN PATH
+wch_compiler_version=$($wch_compiler --version | head -n 1)
+echo "Activated @TOOLCHAIN_NAME@"
+echo "  compiler: $wch_compiler"
+echo "  version:  $wch_compiler_version"

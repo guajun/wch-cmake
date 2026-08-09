@@ -371,7 +371,7 @@
           <span>PowerShell</span>
           <span>CH32X035F8U</span>
         </div>
-        <pre><span class="prompt">PS&gt;</span> .\scripts\activate.ps1
+        <pre><span class="prompt">PS&gt;</span> .\scripts\activate.ps1 -MrsRoot C:\MounRiver\MounRiver_Studio2
 <span class="prompt">PS&gt;</span> cmake --preset release
 <span class="prompt">PS&gt;</span> cmake --build --preset release --parallel
 
@@ -468,8 +468,9 @@
         <div>
           <h3>Release installers</h3>
           <p class="section-copy">
-            The bootstrap script downloads the tagged archive, verifies its
-            checksum, installs the scripts, and imports the selected project.
+            The bootstrap script stages the tagged archive inside the selected
+            project, verifies its checksum, imports CMake and activation files,
+            then removes the staging directory. Nothing is installed globally.
           </p>
           <ul class="plain-list">
             <li><a href="./install.ps1">PowerShell installer</a></li>

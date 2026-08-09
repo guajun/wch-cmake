@@ -4,20 +4,38 @@ param(
 )
 
 if (-not $MrsRoot) {
-    $MrsRoot = "C:\MounRiver\MounRiver_Studio2"
+    throw "MRS2_ROOT is not set. Pass -MrsRoot or set it before activation."
 }
 
-$componentRoot = Join-Path $MrsRoot "resources\app\resources\win32\components\WCH"
+$resolvedMrsRoot = (Resolve-Path -LiteralPath $MrsRoot).Path
+$componentRoot = Join-Path $resolvedMrsRoot "resources\app\resources\win32\components\WCH"
 $toolchainBin = Join-Path $componentRoot "Toolchain\@TOOLCHAIN_NAME@\bin"
 $openOcdBin = Join-Path $componentRoot "OpenOCD\OpenOCD\bin"
+$compiler = Join-Path $toolchainBin "@TOOL_PREFIX@gcc.exe"
+$openOcd = Join-Path $openOcdBin "openocd.exe"
 
-if (-not (Test-Path -LiteralPath $toolchainBin)) {
-    throw "WCH toolchain directory not found: $toolchainBin"
+if (-not (Test-Path -LiteralPath $compiler -PathType Leaf)) {
+    throw "WCH compiler not found: $compiler"
 }
-if (-not (Test-Path -LiteralPath $openOcdBin)) {
-    throw "WCH OpenOCD directory not found: $openOcdBin"
+if (-not (Test-Path -LiteralPath $openOcd -PathType Leaf)) {
+    throw "WCH OpenOCD not found: $openOcd"
 }
 
-$env:MRS2_ROOT = (Resolve-Path -LiteralPath $MrsRoot).Path
-$env:PATH = "$toolchainBin;$openOcdBin;$env:PATH"
-Write-Host "Activated @TOOLCHAIN_NAME@ from $env:MRS2_ROOT"
+$selectedPaths = @($toolchainBin, $openOcdBin)
+$previousSelectedPaths = @($env:WCH_TOOLCHAIN_BIN, $env:WCH_OPENOCD_BIN) |
+    Where-Object { $_ }
+$remainingPaths = $env:PATH -split ";" |
+    Where-Object {
+        $entry = $_
+        $entry -and -not ($selectedPaths + $previousSelectedPaths |
+            Where-Object { $_ -and $_.Equals($entry, [System.StringComparison]::OrdinalIgnoreCase) })
+    }
+
+$env:MRS2_ROOT = $resolvedMrsRoot
+$env:WCH_TOOLCHAIN_BIN = $toolchainBin
+$env:WCH_OPENOCD_BIN = $openOcdBin
+$env:PATH = ($selectedPaths + $remainingPaths) -join ";"
+$compilerVersion = (& $compiler --version | Select-Object -First 1)
+Write-Host "Activated @TOOLCHAIN_NAME@"
+Write-Host "  compiler: $compiler"
+Write-Host "  version:  $compilerVersion"

@@ -11,6 +11,7 @@ project=.
 build_dir=obj
 mrs_build=obj
 cmake_build=build/release
+with_vscode=OFF
 force=OFF
 
 while [ "$#" -gt 0 ]; do
@@ -19,6 +20,7 @@ while [ "$#" -gt 0 ]; do
         --build-dir) build_dir=$2; shift 2 ;;
         --mrs-build) mrs_build=$2; shift 2 ;;
         --cmake-build) cmake_build=$2; shift 2 ;;
+        --with-vscode) with_vscode=ON; shift ;;
         --force) force=ON; shift ;;
         -h|--help) command=help; shift ;;
         *) echo "unknown argument: $1" >&2; exit 2 ;;
@@ -28,7 +30,7 @@ done
 case "$command" in
     import)
         exec cmake "-DWCH_PROJECT=$project" "-DWCH_BUILD_DIR=$build_dir" \
-            "-DWCH_FORCE=$force" \
+            "-DWCH_WITH_VSCODE=$with_vscode" "-DWCH_FORCE=$force" \
             -P "$script_dir/scripts/import.cmake"
         ;;
     verify)
@@ -38,7 +40,7 @@ case "$command" in
         ;;
     help)
         echo "Usage:"
-        echo "  ./wch-cmake.sh import --project PATH [--build-dir obj] [--force]"
+        echo "  ./wch-cmake.sh import --project PATH [--build-dir obj] [--with-vscode] [--force]"
         echo "  ./wch-cmake.sh verify --project PATH [--mrs-build obj] [--cmake-build build/release]"
         ;;
     *)

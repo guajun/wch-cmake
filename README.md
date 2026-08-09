@@ -27,10 +27,10 @@ The POSIX entry point calls the same `cmake -P` implementation:
 sh /opt/wch-cmake/wch-cmake.sh import --project ./firmware
 ```
 
-The importer installs `CMakeLists.txt`, presets, the toolchain modules,
-`cmake/wch-project.cmake`, VS Code tasks, and shell activation scripts. Import
-only reads the MRS2-generated project metadata, so it does not need a toolchain
-path.
+The default import writes only `CMakeLists.txt`, `CMakePresets.json`, `cmake/`,
+and `scripts/`. Import only reads the MRS2-generated project metadata, so it
+does not need a toolchain path. Pass `-WithVSCode` (or `--with-vscode`) to add
+the optional `.vscode/tasks.json` integration.
 
 The first supported layouts are WCH RISC-V GCC8, GCC12, and GCC15. Chip-specific
 flags, linker script, source order, libraries, device name, OpenOCD config, and
@@ -39,7 +39,7 @@ GDB port come from the MRS2 project rather than from a duplicated chip table.
 ## Build
 
 ```powershell
-.\scripts\activate.ps1
+.\scripts\activate.ps1 -MrsRoot C:\MounRiver\MounRiver_Studio2
 cmake --preset release
 cmake --build --preset release --parallel
 ```
@@ -58,11 +58,13 @@ cmake --build --preset release --parallel
 `CMakePresets.json`. The activation script exports `MRS2_ROOT` into the current
 shell. CMake reads that environment variable directly and stops at configure
 time when it is absent; no `CMakeUserPresets.json` or machine-local preset is
-generated.
+generated. Omit `-MrsRoot` when `MRS2_ROOT` is already present in the shell.
 
-The generated VS Code tasks use the same two presets. Start VS Code from an
-environment where `MRS2_ROOT` is already set so its tasks inherit the toolchain
-location.
+The activation scripts prepend the exact GCC, GDB, and OpenOCD selected by the
+imported MRS2 project to the current shell's `PATH`. They do not modify the
+global user or system environment. CMake and Ninja should remain unmodified,
+upstream installations. Optional generated VS Code tasks use the same two
+presets and inherit the activated environment.
 
 Add new application sources directly to `WCH_SOURCES` in
 `cmake/wch-project.cmake`, or use normal `target_sources` and subdirectory
@@ -92,10 +94,11 @@ A release contains scripts and templates, not an executable:
 & ([scriptblock]::Create((irm https://github.com/guajun/wch-cmake/releases/latest/download/install.ps1))) -Project F:\wch\blink\CH32X035F8U
 ```
 
-The installer downloads the release archive, verifies its SHA-256 checksum,
-installs the versioned scripts under `%LOCALAPPDATA%\wch-cmake`, and imports the
-CMake build into the project. Pin `-Version v0.1.0` in reproducible setup.
-CMake configure never downloads mutable project logic.
+The installer stages the release inside the selected project, verifies its
+SHA-256 checksum, imports the four project-local outputs, and removes the
+staging directory. It does not install a global `wch-cmake` command or leave
+files in the system temporary directory. Pin `-Version v0.1.1` in reproducible
+setup. CMake configure never downloads mutable project logic.
 
 ## Sources Of Truth
 
@@ -106,5 +109,5 @@ CMake configure never downloads mutable project logic.
 - `.project/.cproject/.wvproj` are not consumed during normal CMake builds.
 - `wchlink-cli` owns physical probe sessions and has no build-generation code.
 
-The generated `.wch-import-lock.json` records input hashes so later tooling can
-detect an intentional or accidental re-import boundary.
+The generated `cmake/wch-import-lock.json` records input hashes so later tooling
+can detect an intentional or accidental re-import boundary.
