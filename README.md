@@ -89,12 +89,13 @@ symbols. For the CH32X035F8U fixture the raw image SHA-256 is
 A release contains scripts and templates, not an executable:
 
 ```powershell
-$installer = irm https://github.com/guajun/wch-cmake/releases/latest/download/install.ps1
-& ([scriptblock]::Create($installer)) -Project F:\wch\blink\CH32X035F8U
+& ([scriptblock]::Create((irm https://github.com/guajun/wch-cmake/releases/latest/download/install.ps1))) -Project F:\wch\blink\CH32X035F8U
 ```
 
-Pin `-Version v0.1.0` in reproducible setup. CMake configure never downloads
-mutable project logic.
+The installer downloads the release archive, verifies its SHA-256 checksum,
+installs the versioned scripts under `%LOCALAPPDATA%\wch-cmake`, and imports the
+CMake build into the project. Pin `-Version v0.1.0` in reproducible setup.
+CMake configure never downloads mutable project logic.
 
 ## Sources Of Truth
 

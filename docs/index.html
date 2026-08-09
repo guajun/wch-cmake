@@ -455,8 +455,8 @@
       <h2>Install and verify</h2>
       <div class="two-column">
         <div>
-          <h3>Clone the current main branch</h3>
-          <pre class="command">git clone https://github.com/guajun/wch-cmake.git F:\wch\wch-cmake</pre>
+          <h3>Install the latest release</h3>
+          <pre class="command">&amp; ([scriptblock]::Create((irm https://github.com/guajun/wch-cmake/releases/latest/download/install.ps1))) -Project F:\wch\blink\CH32X035F8U</pre>
         </div>
         <div>
           <h3>Verify migration parity</h3>
@@ -468,8 +468,8 @@
         <div>
           <h3>Release installers</h3>
           <p class="section-copy">
-            These bootstrap scripts install the latest tagged release. Publish
-            the first <code>v*</code> tag before running them.
+            The bootstrap script downloads the tagged archive, verifies its
+            checksum, installs the scripts, and imports the selected project.
           </p>
           <ul class="plain-list">
             <li><a href="./install.ps1">PowerShell installer</a></li>
