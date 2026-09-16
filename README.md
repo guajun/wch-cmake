@@ -1,6 +1,6 @@
 # wch-cmake
 
-Documentation: <https://guajun.github.io/wch-cmake/>
+Documentation: [English](https://guajun.github.io/wch-cmake/) | [中文](https://guajun.github.io/wch-cmake/zh.html)
 
 `wch-cmake` is a repository of CMake templates and executable `.ps1/.sh`
 scripts. It is not a compiled program.
