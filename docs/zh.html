@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="通过脚本将 WCH RISC-V 项目从 MRS2 迁移到 CMake。">
+  <title>wch-cmake · 中文</title>
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="alternate" hreflang="en" href="./">
+  <link rel="alternate" hreflang="zh-CN" href="./zh.html">
+
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="wordmark" href="./zh.html">wch-cmake</a>
+      <nav aria-label="主导航">
+        <a href="#install">安装</a>
+        <a href="#workflow">迁移流程</a>
+        <a href="#presets">构建预设</a>
+        <a href="https://github.com/guajun/wch-cmake">GitHub</a>
+        <span class="language-switch" role="group" aria-label="语言切换">
+          <a href="./" lang="en" hreflang="en">English</a>
+          <a href="./zh.html" lang="zh-CN" hreflang="zh-CN" aria-current="page">中文</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="intro">
+      <div class="eyebrow">WCH RISC-V · MRS2 → CMake</div>
+      <h1>让 MRS2 工程，<br>用 CMake 继续开发。</h1>
+      <p class="lede">在 MounRiver Studio 2 中完成一次构建，再到工程目录运行一行命令，导入构建配置。接下来，使用 CMake、Ninja 和你喜欢的编辑器继续开发。</p>
+      <div class="quick-install" id="install">
+        <div class="terminal-bar">
+          <span>安装到当前工程</span>
+          <span>PowerShell</span>
+        </div>
+        <pre class="install-command"><code>&amp; ([scriptblock]::Create((irm https://guajun.github.io/wch-cmake/install.ps1))) -Project .</code></pre>
+        <p class="install-hint">请在 MRS2 工程根目录运行。<code>-Project .</code> 表示当前目录，无需先克隆仓库。</p>
+      </div>
+      <div class="links">
+        <a href="#workflow">按三步开始使用 ↓</a>
+        <a href="https://github.com/guajun/wch-cmake">查看 GitHub 仓库</a>
+      </div>
+    </div>
+
+    <section id="workflow">
+      <h2>从官方工程，到日常构建</h2>
+      <p class="section-copy">每个工程只需导入一次。之后通过 CMake 管理源文件和构建选项。</p>
+      <div class="steps">
+        <article class="step">
+          <span class="step-number" aria-hidden="true">01</span>
+          <div>
+            <h3>在 MRS2 中生成并构建</h3>
+            <p>在 MounRiver Studio 2 中创建目标芯片工程，并使用当前启用的配置成功构建一次。导入工具需要这次构建生成的 makefile，例如 <code>obj/makefile</code>。</p>
+            <p class="prerequisite">导入前请安装 CMake 并加入 PATH，构建前还需安装 Ninja。保留 MRS2 安装目录，以便使用其中的编译器和工具。</p>
+          </div>
+        </article>
+        <article class="step">
+          <span class="step-number" aria-hidden="true">02</span>
+          <div>
+            <h3>在工程目录打开 PowerShell</h3>
+            <p>运行<a href="#install">上方的一行安装命令</a>。脚本会下载最新发布版本、校验 SHA-256，并将已有的 MRS2 构建配置导入当前工程。</p>
+            <div class="outputs" aria-label="生成的项目文件"><code>CMakeLists.txt</code><code>CMakePresets.json</code><code>cmake/</code><code>scripts/</code></div>
+            <p>如需 VS Code 任务配置，可在命令末尾加上 <code>-WithVSCode</code>。安装仅作用于当前工程，下载的安装临时文件会在结束后清理。</p>
+          </div>
+        </article>
+        <article class="step">
+          <span class="step-number" aria-hidden="true">03</span>
+          <div>
+            <h3>激活工具链，开始构建</h3>
+            <p>仍在该工程目录中，将示例中的 MRS2 路径替换为实际安装路径，然后运行：</p>
+            <pre class="command"><code>.\scripts\activate.ps1 -MrsRoot C:\MounRiver\MounRiver_Studio2
+cmake --preset release
+cmake --build --preset release --parallel</code></pre>
+            <p class="after-command">每次打开新终端时，需要重新执行激活命令。导入是一次性准备，日常使用 <code>cmake</code> 构建。新增源文件可修改 <code>cmake/wch-project.cmake</code>，或使用 <code>target_sources</code>。</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="presets">
+      <h2>两套预设，共用环境</h2>
+      <p class="section-copy">
+        <code>release</code> 和 <code>debug</code> 两套预设均纳入版本控制，可跨机器使用。
+        激活脚本将本机的 <code>MRS2_ROOT</code> 路径导出到当前 shell，
+        CMake 直接读取该环境变量。
+      </p>
+
+      <table class="preset-table">
+        <thead>
+          <tr>
+            <th>预设</th>
+            <th>构建类型</th>
+            <th>工具链路径</th>
+            <th>定义位置</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>release</code></td>
+            <td>Release</td>
+            <td>当前 shell 的 <code>MRS2_ROOT</code></td>
+            <td>纳入版本控制的 <code>CMakePresets.json</code></td>
+          </tr>
+          <tr>
+            <td><code>debug</code></td>
+            <td>Debug</td>
+            <td>当前 shell 的 <code>MRS2_ROOT</code></td>
+            <td>纳入版本控制的 <code>CMakePresets.json</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        如果未设置 <code>MRS2_ROOT</code>，配置阶段会立即停止。
+        工具链不会使用隐藏的默认路径，也不会回退到用户预设。
+      </div>
+    </section>
+
+    <section id="details">
+      <h2>进一步了解</h2>
+      <div class="two-column">
+        <div>
+          <h3>安装与一致性验证</h3>
+          <p class="section-copy">安装脚本生成的是独立的 CMake 工程，不会安装全局 <code>wch-cmake</code> 命令。如需通过仓库脚本验证迁移前后的固件一致性，请参阅 README。</p>
+          <ul class="plain-list">
+            <li><a href="./install.ps1">PowerShell 安装脚本</a></li>
+            <li><a href="./install.sh">POSIX 安装脚本</a></li>
+            <li><a href="https://github.com/guajun/wch-cmake#verify-migration">迁移一致性验证说明</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>构建、烧录与调试</h3>
+          <p class="section-copy"><code>wch-cmake</code> 负责工程生成和一致性检查。探针发现、固件烧录和 GDB 会话由 <a href="https://github.com/guajun/wchlink-cli">wchlink-cli</a> 提供。</p>
+          <p class="section-copy">CH32X035F8U 测试工程已通过与 MRS2 构建产物的一致性验证。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>wch-cmake</span>
+    <span>CH32X035F8U 测试工程已通过与 MRS2 构建产物的一致性验证。</span>
+  </footer>
+</body>
+</html>
