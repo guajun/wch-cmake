@@ -75,7 +75,8 @@
             <pre class="command"><code>.\scripts\activate.ps1 -MrsRoot C:\MounRiver\MounRiver_Studio2
 cmake --preset release
 cmake --build --preset release --parallel</code></pre>
-            <p class="after-command">每次打开新终端时，需要重新执行激活命令。导入是一次性准备，日常使用 <code>cmake</code> 构建。新增源文件可修改 <code>cmake/wch-project.cmake</code>，或使用 <code>target_sources</code>。</p>
+            <p class="after-command">每次打开新终端时，需要重新执行激活命令。导入会创建仅含用途注释的 <code>cmake/application.cmake</code>，可在其中用 <code>target_sources</code> 等命令添加自己的配置。重新在 MRS2 构建并导入后，生成配置会刷新，用户文件始终保留。已有生成文件中的手工修改，请在再次导入前迁移到用户文件。</p>
+            <p>将 <code>CMakeLists.txt</code>、<code>CMakePresets.json</code>、完整的 <code>cmake/</code> 和 <code>scripts/</code> 目录以及工程源文件、头文件、库和链接脚本提交 Git，不要提交 <code>build/</code> 或本机工具路径。其他人 clone 后无需再次 install 或 import，只需准备 CMake、Ninja 和含对应工具链的 MRS2，再使用自己的 MRS2 路径激活并构建。工程外的依赖需要另外提供；重新导入才需要导入工具和最新的 MRS2 makefile。</p>
           </div>
         </article>
       </div>

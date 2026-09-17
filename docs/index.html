@@ -75,7 +75,8 @@
             <pre class="command"><code>.\scripts\activate.ps1 -MrsRoot C:\MounRiver\MounRiver_Studio2
 cmake --preset release
 cmake --build --preset release --parallel</code></pre>
-            <p class="after-command">Run the activation command in each new terminal. Importing is a one-time setup; everyday builds use <code>cmake</code>. Add sources in <code>cmake/wch-project.cmake</code> or with <code>target_sources</code>.</p>
+            <p class="after-command">Run the activation command in each new terminal. Import creates <code>cmake/application.cmake</code> containing only explanatory comments for customizations such as <code>target_sources</code>. Rebuild in MRS2 and import again to refresh generated settings; the user file is always preserved. Move any existing customizations out of generated files before re-importing.</p>
+            <p>Commit <code>CMakeLists.txt</code>, <code>CMakePresets.json</code>, the complete <code>cmake/</code> and <code>scripts/</code> directories, and the required sources, headers, libraries, and linker scripts. Exclude <code>build/</code> and machine-local tool paths. After cloning, no install or import is needed: prepare CMake, Ninja, and MRS2 with the selected toolchain, then activate using your own MRS2 path and build. External dependencies must be supplied separately; only re-importing requires the importer and updated MRS2 makefiles.</p>
           </div>
         </article>
       </div>

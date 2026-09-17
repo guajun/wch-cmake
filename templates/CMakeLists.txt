@@ -11,3 +11,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(cmake/wch-firmware.cmake)
 wch_add_firmware(${WCH_PROJECT_NAME})
 
+# Project-owned sources, definitions, and libraries; commit this file to Git.
+# Unlike generated MRS2 settings, application.cmake survives re-imports.
+# Personal presets belong in untracked CMakeUserPresets.json instead.
+include(cmake/application.cmake)

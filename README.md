@@ -8,7 +8,8 @@ scripts. It is not a compiled program.
 MRS2 is used once to select a chip, create the vendor project, and produce an
 active build such as `obj/makefile`. The importer reads the exact compiler and
 linker recipes that MRS2 generated, then installs a standalone CMake project.
-After that import, CMake is the build source of truth.
+After that import, CMake owns the build. Generated MRS2 settings and user
+customizations live in separate files so the MRS2 settings can be refreshed.
 
 Probe access is intentionally separate: use the sibling `wchlink-cli` repository
 for discovery, flash, GDB Server, and breakpoint checks.
@@ -66,11 +67,45 @@ global user or system environment. CMake and Ninja should remain unmodified,
 upstream installations. Optional generated VS Code tasks use the same two
 presets and inherit the activated environment.
 
-Add new application sources directly to `WCH_SOURCES` in
-`cmake/wch-project.cmake`, or use normal `target_sources` and subdirectory
-`CMakeLists.txt` files. MRS2 does not need to update its makefile after the
-one-time import. Running `import` again is an explicit re-import and replaces
-the generated manifest with current MRS2 facts.
+Import creates `cmake/application.cmake` with explanatory comments only if it
+does not exist. Put application
+sources, definitions, libraries, and `add_subdirectory` calls in this file.
+It runs after the firmware target has been created:
+
+```cmake
+target_sources(${WCH_PROJECT_NAME} PRIVATE app/control.cpp)
+target_compile_definitions(${WCH_PROJECT_NAME} PRIVATE APP_FEATURE=1)
+```
+
+Running `import` again refreshes generated files, including `CMakeLists.txt`
+and `cmake/wch-project.cmake`, from current MRS2 facts. First rebuild in MRS2
+to refresh its makefiles. `cmake/application.cmake` is never overwritten, even with
+`-Force` / `--force`. Keep customizations there rather than editing generated
+files. Existing customizations in generated files must be moved there before
+re-importing. Ordinary source edits only need a CMake build, not a re-import.
+
+## Build After Cloning
+
+Commit `CMakeLists.txt`, `CMakePresets.json`, the complete `cmake/` and `scripts/`
+directories (including `cmake/application.cmake`), and all required sources,
+headers, libraries, and linker scripts. Do not commit `build/` or machine-local
+tool paths. Dependencies outside the project must also be made available to
+other developers; importing does not copy them into the repository.
+
+`cmake/application.cmake` is shared application build logic, not personal machine
+configuration. `CMakePresets.json` holds shared presets and belongs in Git.
+Optional `CMakeUserPresets.json` holds personal presets and machine-local settings;
+exclude it from Git. The generated activation script supplies `MRS2_ROOT`, so
+this personal presets file is not required.
+
+After cloning, another developer does **not** need to run the installer or
+importer. Install CMake, Ninja, and MRS2 with the selected toolchain, then run
+the activation and build commands above using their own MRS2 installation path.
+Normal CMake builds do not need MRS2-generated `obj/` makefiles.
+
+Refreshing MRS2 settings is a separate operation: it requires updated MRS2
+makefiles and a local copy of `wch-cmake` (or the release installer). The
+installer does not retain the importer in the generated project.
 
 C++ is supported. When the vendor startup does not call
 `__libc_init_array`, the generated runtime shim wraps `main` so global
@@ -104,7 +139,8 @@ setup. CMake configure never downloads mutable project logic.
 
 - Before import, MRS2 `.template/.launch` and generated makefiles are bootstrap
   inputs.
-- After import, `CMakeLists.txt` and `cmake/wch-project.cmake` own the build.
+- After import, generated `CMakeLists.txt` and `cmake/wch-project.cmake` supply
+  the imported build; user-owned `cmake/application.cmake` supplies customizations.
 - The current process environment owns the machine-local `MRS2_ROOT` path.
 - `.project/.cproject/.wvproj` are not consumed during normal CMake builds.
 - `wchlink-cli` owns physical probe sessions and has no build-generation code.
