@@ -28,8 +28,8 @@ The POSIX entry point calls the same `cmake -P` implementation:
 sh /opt/wch-cmake/wch-cmake.sh import --project ./firmware
 ```
 
-The default import writes only `CMakeLists.txt`, `CMakePresets.json`, `cmake/`,
-and `scripts/`. Import only reads the MRS2-generated project metadata, so it
+The default import writes `CMakeLists.txt`, `CMakePresets.json`, `cmake/`,
+`scripts/`, and `build/.gitignore`. Import only reads the MRS2-generated project metadata, so it
 does not need a toolchain path. Pass `-WithVSCode` (or `--with-vscode`) to add
 the optional `.vscode/tasks.json` integration.
 
@@ -91,6 +91,12 @@ directories (including `cmake/application.cmake`), and all required sources,
 headers, libraries, and linker scripts. Do not commit `build/` or machine-local
 tool paths. Dependencies outside the project must also be made available to
 other developers; importing does not copy them into the repository.
+
+Import creates `build/.gitignore` containing only `*`. CMake configure also
+creates this rule inside its build directory, so artifacts remain ignored after
+cloning or deleting the build directory, including with a custom out-of-source
+build path. Existing ignore files are preserved. The project-root `.gitignore`
+is not modified; already tracked artifacts must be untracked separately.
 
 `cmake/application.cmake` is shared application build logic, not personal machine
 configuration. `CMakePresets.json` holds shared presets and belongs in Git.

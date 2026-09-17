@@ -142,6 +142,12 @@ if(NOT EXISTS "${WCH_PROJECT}/cmake/application.cmake")
     wch_install_template("application.cmake" "cmake/application.cmake")
 endif()
 
+# Keep build artifacts ignored without changing the project's root .gitignore.
+if(NOT EXISTS "${WCH_PROJECT}/build/.gitignore")
+    file(MAKE_DIRECTORY "${WCH_PROJECT}/build")
+    file(WRITE "${WCH_PROJECT}/build/.gitignore" "*\n")
+endif()
+
 set(_vscode_tasks "${WCH_PROJECT}/.vscode/tasks.json")
 if(WCH_WITH_VSCODE)
     wch_install_template("tasks.json" ".vscode/tasks.json")
